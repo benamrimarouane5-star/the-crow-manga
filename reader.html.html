@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="اقرأ مانغا الغراب مجانًا - قصة مغامرات في عالم خيالي مليء بالأسرار.">
+    <meta name="keywords" content="مانغا, الغراب, manga, crow, fantasy">
+    <title>مانغا الغراب - قراءة مجانية</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        body { 
+            font-family: 'Noto Sans Arabic', sans-serif; 
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); 
+            background-size: 400% 400%; 
+            animation: gradientShift 15s ease infinite; 
+            color: #333; 
+            margin: 0; 
+            padding: 0; 
+            line-height: 1.6; 
+            overflow-x: hidden;
+            direction: rtl;
+        }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        header { 
+            background: rgba(0, 0, 0, 0.8); 
+            color: #fff; 
+            text-align: center; 
+            padding: 30px 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
+            position: relative;
+        }
+        .lang-toggle, #dark-toggle, #notify-toggle {
+            position: absolute; top: 10px; background: rgba(255,255,255,0.2); border: none; color: #fff; padding: 8px 12px; border-radius: 20px; cursor: pointer; font-size: 14px;
+        }
+        .lang-toggle { right: 10px; }
+        #dark-toggle { left: 10px; }
+        #notify-toggle { left: 80px; }
+
+        .search-container {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            display: flex; align-items: center; background: rgba(255,255,255,0.2); border-radius: 25px; padding: 5px 12px; width: 200px;
+        }
+        .search-container input { background: transparent; border: none; color: white; font-size: 14px; width: 100%; outline: none; }
+        .search-container input::placeholder { color: rgba(255,255,255,0.7); }
+        .search-container i { color: white; font-size: 16px; margin-left: 8px; }
+
+        .cover { width: 100%; max-width: 400px; margin: 10px auto; display: block; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        h1 { margin: 0; font-size: 3em; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+        .description { max-width: 800px; margin: 30px auto; padding: 25px; background: rgba(255, 255, 255, 0.9); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .chapters { display: flex; flex-direction: row; overflow-x: auto; gap: 25px; max-width: 900px; margin: 30px auto; padding: 10px 0; }
+        .chapters::-webkit-scrollbar { height: 8px; }
+        .chapters::-webkit-scrollbar-thumb { background: #667eea; border-radius: 4px; }
+
+        .chapter { background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-width: 250px; flex-shrink: 0; }
+        .chapter img { max-width: 150px; height: auto; border-radius: 8px; margin-bottom: 10px; loading: lazy; }
+
+        .read-btn, .download-btn, .share-btn { background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 8px 16px; text-decoration: none; border-radius: 25px; display: inline-block; margin: 3px; font-weight: bold; font-size: 0.9em; }
+        .read-btn:hover, .download-btn:hover, .share-btn:hover { transform: scale(1.1); }
+
+        #comments { max-width: 800px; margin: 30px auto; padding: 25px; background: rgba(255, 255, 255, 0.9); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        #comment-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        #comment-form input, #comment-form textarea { padding: 12px; border: 2px solid #ddd; border-radius: 8px; }
+        #comment-form button { background: linear-gradient(45deg, #28a745, #20c997); color: #fff; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .comment { background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 8px; border-right: 5px solid #667eea; }
+
+        footer { background: rgba(0, 0, 0, 0.9); color: #fff; text-align: center; padding: 25px; }
+        .social-links a { color: #fff; margin: 0 15px; font-size: 1.5em; text-decoration: none; }
+
+        #chapter-modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); }
+        #chapter-content { display: flex; flex-wrap: wrap; justify-content: center; padding: 20px; max-height: 90vh; overflow-y: auto; }
+        #chapter-content img { max-width: 200px; margin: 10px; border-radius: 8px; }
+        #chapter-content iframe { width: 100%; height: 80vh; border: none; margin: 10px; }
+        .close { position: absolute; top: 10px; right: 20px; font-size: 28px; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="lang-toggle" onclick="alert('اللغة غير مدعومة في النسخة المجانية')">AR</button>
+        <button id="dark-toggle" onclick="toggleDarkMode()">Dark Mode</button>
+        <button id="notify-toggle" onclick="alert('الإشعارات غير مدعومة')">Notification</button>
+
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="ابحث..." oninput="filterChapters()">
+        </div>
+
+        <h1>مانغا الغراب</h1>
+        <img id="cover-img" src="" alt="غلاف" class="cover" loading="lazy">
+    </header>
+
+    <section class="description">
+        <h2>وصف القصة</h2>
+        <p id="story-desc">جاري التحميل...</p>
+    </section>
+
+    <section class="chapters" id="chapters-section"></section>
+
+    <section id="comments">
+        <h2>اترك تعليقك</h2>
+        <form id="comment-form">
+            <input type="text" id="name" placeholder="اسمك" required>
+            <textarea id="message" rows="4" required>تعليقك...</textarea>
+            <button type="submit">أرسل</button>
+        </form>
+        <div id="comments-list"></div>
+    </section>
+
+    <footer>
+        <div class="social-links">
+        
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+        </div>
+        <p>© 2025 جميع الحقوق محفوظة. بلال عبد الدين</p>
+    </footer>
+
+    <div id="chapter-modal">
+        <span class="close" onclick="closeChapterModal()">×</span>
+        <div id="chapter-content"></div>
+    </div>
+
+    <script>
+        // تحميل البيانات من manga-data.json
+        fetch('manga-data.json')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('cover-img').src = data.cover;
+                document.getElementById('story-desc').textContent = data.description.ar;
+
+                const chaptersHTML = data.chapters.map((ch, i) => `
+                    <div class="chapter">
+                        <h3>${ch.title.ar}</h3>
+                        <img src="${ch.preview}" alt="" loading="lazy">
+                        <p>${ch.desc.ar}</p>
+                        <a href="#" class="read-btn" onclick="readChapter(${i}); return false;">اقرأ</a>
+                        <a href="#" class="download-btn" onclick="downloadChapter(${i}); return false;">PDF</a>
+                        <a href="#" class="share-btn" onclick="shareChapter(${i}); return false;">مشاركة</a>
+                    </div>
+                `).join('');
+                document.getElementById('chapters-section').innerHTML = chaptersHTML;
+                displayComments();
+            })
+            .catch(() => alert('خطأ: تأكد من وجود manga-data.json في نفس المجلد'));
+
+        function readChapter(i) {
+            fetch('manga-data.json')
+                .then(res => res.json())
+                .then(data => {
+                    const ch = data.chapters[i];
+                    const modal = document.getElementById('chapter-modal');
+                    const content = document.getElementById('chapter-content');
+                    content.innerHTML = '<p style="color:white;">جاري التحميل...</p>';
+                    modal.style.display = 'block';
+
+                    if (ch.chapterFile.startsWith('data:application/pdf')) {
+                        content.innerHTML = `<iframe src="${ch.chapterFile}"></iframe>`;
+                    } else {
+                        const zipBase64 = ch.chapterFile.split(',')[1];
+                        const binary = atob(zipBase64);
+                        const len = binary.length;
+                        const buffer = new Uint8Array(len);
+                        for (let j = 0; j < len; j++) buffer[j] = binary.charCodeAt(j);
+
+                        JSZip.loadAsync(buffer).then(zip => {
+                            content.innerHTML = '';
+                            zip.forEach((path, entry) => {
+                                if (/\.(jpe?g|png|gif)$/i.test(entry.name)) {
+                                    entry.async('blob').then(blob => {
+                                        const img = document.createElement('img');
+                                        img.src = URL.createObjectURL(blob);
+                                        img.loading = 'lazy';
+                                        content.appendChild(img);
+                                    });
+                                }
+                            });
+                        });
+                    }
+                });
+        }
+
+        function closeChapterModal() {
+            document.getElementById('chapter-modal').style.display = 'none';
+        }
+
+        function downloadChapter(i) {
+            fetch('manga-data.json')
+                .then(res => res.json())
+                .then(data => {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+                    const ch = data.chapters[i];
+                    doc.text(ch.title.ar, 10, 10);
+                    doc.text(ch.desc.ar, 10, 20);
+                    doc.save(`${ch.title.ar}.pdf`);
+                });
+        }
+
+        function shareChapter(i) {
+            if (navigator.share) {
+                fetch('manga-data.json')
+                    .then(res => res.json())
+                    .then(data => {
+                        const ch = data.chapters[i];
+                        navigator.share({ title: ch.title.ar, text: ch.desc.ar, url: window.location.href });
+                    });
+            } else {
+                alert('انسخ الرابط: ' + window.location.href);
+            }
+        }
+
+        function filterChapters() {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            document.querySelectorAll('.chapter').forEach(ch => {
+                ch.style.display = ch.textContent.toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        }
+
+        function toggleDarkMode() {
+            document.body.style.background = document.body.style.background.includes('#1a1a1a') 
+                ? 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)' 
+                : 'linear-gradient(-45deg, #1a1a1a, #2d1b69, #0f3460, #1e3c72)';
+        }
+
+        // التعليقات (محلية)
+        document.getElementById('comment-form').addEventListener('submit', e => {
+            e.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            const message = document.getElementById('message').value.trim();
+            if (name && message) {
+                const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+                comments.push({ name, message, date: new Date().toLocaleString() });
+                localStorage.setItem('comments', JSON.stringify(comments));
+                displayComments();
+                e.target.reset();
+            }
+        });
+
+        function displayComments() {
+            const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+            document.getElementById('comments-list').innerHTML = comments.map(c => `
+                <div class="comment">
+                    <strong>${c.name}</strong> (${c.date})<br>${c.message}
+                </div>
+            `).join('');
+        }
+
+        window.onclick = e => {
+            if (e.target.id === 'chapter-modal') closeChapterModal();
+        };
+    </script>
+</body>
+</html>
