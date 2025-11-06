@@ -314,8 +314,9 @@
                 tab.addEventListener('click', () => {
                     document.querySelectorAll(`#${containerId} .lang-tab`).forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
-                    document.querySelectorAll(`#${containerId} [id^="lang-"], #${containerId} [id^="edit-lang-"]`).forEach(div => div.style.display = 'none');
-                    document.getElementById(`${containerId === 'admin-panel' ? 'lang-' : 'edit-lang-'}` + tab.dataset.lang).style.display = 'block';
+                    const prefix = containerId === 'admin-panel' ? 'lang-' : 'edit-lang-';
+                    document.querySelectorAll(`#${containerId} [id^="${prefix}"]`).forEach(div => div.style.display = 'none');
+                    document.getElementById(prefix + tab.dataset.lang).style.display = 'block';
                 });
             });
         }

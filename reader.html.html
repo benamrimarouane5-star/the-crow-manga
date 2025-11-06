@@ -42,6 +42,13 @@
         #dark-toggle { left: 10px; }
         #notify-toggle { left: 80px; }
 
+        /* تحسين للأيقونات */
+        #dark-toggle i, #notify-toggle i {
+            font-size: 16px;
+            display: block;
+            margin: 0 auto;
+        }
+
         .search-container {
             position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
             display: flex; align-items: center; background: rgba(255,255,255,0.2); border-radius: 25px; padding: 5px 12px; width: 200px;
@@ -83,9 +90,15 @@
 <body>
 
     <header>
-        <button class="lang-toggle" onclick="alert('اللغة غير مدعومة في النسخة المجانية')">AR</button>
-        <button id="dark-toggle" onclick="toggleDarkMode()">Dark Mode</button>
-        <button id="notify-toggle" onclick="alert('الإشعارات غير مدعومة')">Notification</button>
+        <button class="lang-toggle" onclick="alert('اللغة غير مدعومة في النسخة المجانية')">
+            <i class="fas fa-globe"></i>
+        </button>
+        <button id="dark-toggle" onclick="toggleDarkMode()">
+            <i class="fas fa-sun"></i> <!-- يتبدل لقمر في الـ JS -->
+        </button>
+        <button id="notify-toggle" onclick="alert('الإشعارات غير مدعومة')">
+            <i class="fas fa-bell"></i>
+        </button>
 
         <div class="search-container">
             <i class="fas fa-search"></i>
@@ -115,7 +128,6 @@
 
     <footer>
         <div class="social-links">
-        
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-facebook"></i></a>
         </div>
@@ -224,9 +236,17 @@
         }
 
         function toggleDarkMode() {
-            document.body.style.background = document.body.style.background.includes('#1a1a1a') 
-                ? 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)' 
-                : 'linear-gradient(-45deg, #1a1a1a, #2d1b69, #0f3460, #1e3c72)';
+            const body = document.body;
+            const darkIcon = document.getElementById('dark-toggle').querySelector('i');
+            const isDark = body.style.background.includes('#1a1a1a');
+            
+            if (isDark) {
+                body.style.background = 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)';
+                darkIcon.className = 'fas fa-sun';
+            } else {
+                body.style.background = 'linear-gradient(-45deg, #1a1a1a, #2d1b69, #0f3460, #1e3c72)';
+                darkIcon.className = 'fas fa-moon';
+            }
         }
 
         // التعليقات (محلية)
