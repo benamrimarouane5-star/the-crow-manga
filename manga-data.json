@@ -1,0 +1,40 @@
+{
+  "cover": "https://via.placeholder.com/400x600?text=غلاف+الغراب",  // غير هادي برابط الصورة الحقيقية
+  "description": {
+    "ar": "مانغا 'الغراب' هي قصة مغامرات في عالم خيالي مليء بالأسرار والتحديات. يتبع البطل رحلة لكشف أسرار مملكة الظلام.",
+    "en": "Manga 'The Crow' is a story of adventures in a fantasy world full of secrets and challenges. The hero embarks on a journey to uncover the mysteries of the Kingdom of Darkness.",
+    "fr": "Manga 'Le Corbeau' est une histoire d'aventures dans un monde fantastique rempli de secrets et de défis. Le héros entreprend un voyage pour dévoiler les mystères du Royaume des Ténèbres."
+  },
+  "chapters": [
+    {
+      "title": {
+        "ar": "الفصل الأول: الظلال الأولى",
+        "en": "Chapter 1: The First Shadows",
+        "fr": "Chapitre 1: Les Premières Ombres"
+      },
+      "desc": {
+        "ar": "البداية الدرامية للقصة، حيث يلتقي البطل بالغراب الغامض.",
+        "en": "The dramatic beginning of the story, where the hero meets the mysterious crow.",
+        "fr": "Le début dramatique de l'histoire, où le héros rencontre le corbeau mystérieux."
+      },
+      "preview": "https://via.placeholder.com/150x200?text=فصل+1",  // غير برابط صورة المعاينة الحقيقية
+      "chapterFile": "data:application/pdf;base64,JVBERi0xLjQKJcOkw7zDtsOfCjIgMCBvYmoKPDwvTGVuZ3RoIDMgMCBSL0ZpbHRlci9GbGF0ZURlY29kZT4+Ci...",  // هادي base64 لـ PDF صغير تجريبي – غير بـ ZIP أو PDF حقيقي (استعمل admin.html للرفع)
+      "views": 0
+    },
+    {
+      "title": {
+        "ar": "الفصل الثاني: سر الغابة",
+        "en": "Chapter 2: Secret of the Forest",
+        "fr": "Chapitre 2: Le Secret de la Forêt"
+      },
+      "desc": {
+        "ar": "استكشاف الغابة المظلمة ومواجهة الوحوش الأولى.",
+        "en": "Exploring the dark forest and facing the first monsters.",
+        "fr": "Exploration de la forêt sombre et affrontement des premiers monstres."
+      },
+      "preview": "https://via.placeholder.com/150x200?text=فصل+2",
+      "chapterFile": "data:application/zip;base64,UEsDBBQAAAAIAHJDQAAAMgAAAAAAA...",  // base64 لـ ZIP تجريبي – غير بالحقيقي
+      "views": 0
+    }
+  ]
+}
