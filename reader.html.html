@@ -11,7 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
     <style>
         :root {
             --primary-gradient: linear-gradient(45deg, #667eea, #764ba2);
@@ -70,7 +69,7 @@
         .sidebar-btn:hover { transform: scale(1.15); }
         .dark-mode .sidebar-btn { background: rgba(30,30,30,0.9); color: #fff; }
 
-        /* دائرة لوحة الإدارة */
+        /* دائرة لوحة الإدارة - برتقالية فقط بدون كتابة */
         #admin-circle {
             position: fixed;
             bottom: 20px;
@@ -108,7 +107,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* باقي التصميم كما هو */
+        /* باقي التصميم كما كان */
         header { 
             background: rgba(0, 0, 0, 0.8); 
             color: #fff; 
@@ -176,13 +175,59 @@
             font-size: 0.9em;
             color: #555;
         }
+
+        /* ركن التعليقات - كما كان في الب tolerant */
         #comments { 
             max-width: 800px; 
             margin: 30px auto; 
             padding: 25px; 
             background: rgba(255, 255, 255, 0.9); 
             border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
+            animation: fadeIn 1s ease-in 0.5s both;
         }
+        #comment-form { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        #comment-form input, #comment-form textarea { 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        #comment-form input:focus, #comment-form textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        #comment-form button { 
+            background: linear-gradient(45deg, #28a745, #20c997); 
+            color: #fff; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        #comment-form button:hover { transform: scale(1.05); }
+        #comment-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .comment { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            border-right: 5px solid #667eea; 
+            position: relative;
+        }
+        .comment::before {
+            content: '\f075'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #667eea; position: absolute; right: 10px; top: 10px;
+        }
+        body[dir="ltr"] .comment::before, body[dir="fr"] .comment::before { right: auto; left: 10px; }
+
         footer { 
             background: rgba(0, 0, 0, 0.9); 
             color: #fff; 
@@ -193,9 +238,11 @@
             color: #fff; 
             margin: 0 15px; 
             font-size: 1.5em;
+            transition: color 0.3s, transform 0.3s;
         }
+        .social-links a:hover { color: #667eea; transform: scale(1.2); }
 
-        /* Dark Mode للعناصر */
+        /* Dark Mode */
         .dark-mode .description,
         .dark-mode .chapter,
         .dark-mode #comments,
@@ -225,7 +272,10 @@
             max-width: 200px;
             margin: 10px;
             border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s;
         }
+        #chapter-content img:hover { transform: scale(1.1); }
         .close {
             color: white;
             float: left;
@@ -251,7 +301,7 @@
     <!-- Google Translate -->
     <div id="google_translate_element"></div>
 
-    <!-- دائرة لوحة الإدارة -->
+    <!-- دائرة لوحة الإدارة - برتقالية فقط -->
     <div id="admin-circle" onclick="openAdminPrompt()">
         <i class="fas fa-cog"></i>
     </div>
@@ -273,11 +323,12 @@
 
     <section class="chapters" id="chapters-section"></section>
 
+    <!-- ركن التعليقات - كما كان في البداية -->
     <section id="comments">
         <h2><i class="fas fa-comments"></i> اترك تعليقك</h2>
         <form id="comment-form">
             <input type="text" id="name" placeholder="اسمك" required maxlength="50">
-            <textarea id="message" rows="4" placeholder="تعليقك..." required maxlength="500"></textarea>
+            <textarea id="message" rows="4" placeholder="تعليقك... شارك رأيك في القصة!" required maxlength="500"></textarea>
             <button type="submit" id="submit-btn"><i class="fas fa-paper-plane"></i> أرسل</button>
         </form>
         <div id="comments-list"></div>
@@ -299,7 +350,7 @@
 
     <!-- Firebase Config (استبدل بالقيم الحقيقية) -->
     <script>
-        // استبدل هذا بالقيم من مشروعك في Firebase
+        // استبدل هذا بإعدادات مشروعك في Firebase
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -323,7 +374,6 @@
                 if (doc.exists) {
                     mangaData = doc.data();
                 } else {
-                    // إنشاء هيكل افتراضي
                     mangaData = {
                         cover: 'images/cover.jpg',
                         description: { ar: 'وصف افتراضي...' },
@@ -426,42 +476,38 @@
         translateScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
         document.body.appendChild(translateScript);
 
-        // لوحة الإدارة (دائرة برتقالية)
+        // لوحة الإدارة (دائرة برتقالية فقط)
         function openAdminPrompt() {
             const pass = prompt("أدخل كلمة المرور:");
             if (pass === ADMIN_PASSWORD) {
                 alert("مرحباً بالكاتب! يمكنك الآن رفع الفصول من لوحة الإدارة.");
-                // هنا يمكنك إضافة نموذج رفع الملفات إلى Firebase
-                // مثال: رفع ملف ZIP أو PDF وتخزين الرابط في Firestore
+                // يمكنك إضافة نموذج رفع الملفات هنا
             } else if (pass !== null) {
                 alert("كلمة المرور خاطئة!");
             }
         }
 
-        // إظهار دائرة الإدارة فقط في وضع الكاتب
+        // إظهار الدائرة فقط في وضع الإدارة
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode') === 'admin') {
             document.getElementById('admin-circle').style.display = 'flex';
         }
 
-        // تحميل البيانات عند التشغيل
-        window.onload = () => {
-            loadData();
-            displayComments();
-        };
-
         // التعليقات (محلية)
         const form = document.getElementById('comment-form');
+        const submitBtn = document.getElementById('submit-btn');
         form.addEventListener('submit', e => {
             e.preventDefault();
             const name = document.getElementById('name').value.trim();
             const message = document.getElementById('message').value.trim();
-            if (name && message) {
+            if (name && message && name.length <= 50 && message.length <= 500) {
+                submitBtn.disabled = true;
                 const comments = JSON.parse(localStorage.getItem('comments') || '[]');
                 comments.push({ name, message, date: new Date().toLocaleString() });
                 localStorage.setItem('comments', JSON.stringify(comments));
                 displayComments();
                 form.reset();
+                setTimeout(() => submitBtn.disabled = false, 1000);
             }
         });
 
@@ -471,8 +517,12 @@
                 `<div class="comment"><strong>${c.name}</strong> (${c.date})<br>${c.message}</div>`
             ).join('');
         }
-   
 
+        // تحميل البيانات
+        window.onload = () => {
+            loadData();
+            displayComments();
+        };
     </script>
 </body>
 </html>
