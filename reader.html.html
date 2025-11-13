@@ -16,6 +16,7 @@
             --primary-gradient: linear-gradient(45deg, #667eea, #764ba2);
             --dark-bg: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1e3a5f);
         }
+        * { box-sizing: border-box; }
         body { 
             font-family: 'Noto Sans Arabic', sans-serif; 
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); 
@@ -44,7 +45,7 @@
             100%{background-position:0% 50%} 
         }
 
-        /* الأزرار الجانبية */
+        /* === الشريط الجانبي (Dark Mode + Notification + لوحة التحكم) === */
         .sidebar {
             position: fixed;
             left: 15px;
@@ -65,32 +66,14 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .sidebar-btn:hover { transform: scale(1.15); }
         .dark-mode .sidebar-btn { background: rgba(30,30,30,0.9); color: #fff; }
 
-        /* دائرة لوحة الإدارة - برتقالية فقط بدون كتابة */
-        #admin-circle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 60px; height: 60px;
-            background: #ff6b35;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6em;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(255,107,53,0.4);
-            z-index: 1000;
-            transition: transform 0.3s;
-            display: none;
-        }
-        #admin-circle:hover { transform: scale(1.2); }
-
-        /* Google Translate */
+        /* === Google Translate === */
         #google_translate_element {
             position: fixed;
             top: 15px;
@@ -107,7 +90,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* باقي التصميم كما كان */
+        /* === باقي التصميم === */
         header { 
             background: rgba(0, 0, 0, 0.8); 
             color: #fff; 
@@ -128,7 +111,7 @@
         h1 { 
             margin: 0; 
             font-family: 'Roboto', sans-serif; 
-            font-size: 3em; 
+            font-size: 2.8em; 
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         .description { 
@@ -141,12 +124,12 @@
         }
         .chapters { 
             display: flex;
-            flex-direction: row;
-            overflow-x: auto;
-            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
             max-width: 900px;
             margin: 30px auto;
-            padding: 10px 0;
+            padding: 10px;
         }
         .chapter { 
             background: rgba(255, 255, 255, 0.95); 
@@ -154,7 +137,7 @@
             border-radius: 12px; 
             text-align: center; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            min-width: 250px;
+            width: 250px;
             flex-shrink: 0;
         }
         .read-btn { 
@@ -166,17 +149,18 @@
             display: inline-block; 
             margin-top: 10px; 
             font-weight: bold;
+            font-size: 0.9em;
         }
         .views-panel {
             background: rgba(102, 126, 234, 0.1);
             padding: 8px;
             border-radius: 6px;
             margin-top: 10px;
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #555;
         }
 
-        /* ركن التعليقات - كما كان في الب tolerant */
+        /* === ركن التعليقات === */
         #comments { 
             max-width: 800px; 
             margin: 30px auto; 
@@ -184,7 +168,6 @@
             background: rgba(255, 255, 255, 0.9); 
             border-radius: 12px; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
-            animation: fadeIn 1s ease-in 0.5s both;
         }
         #comment-form { 
             display: flex; 
@@ -197,11 +180,7 @@
             border: 2px solid #ddd; 
             border-radius: 8px; 
             font-family: inherit;
-            transition: border-color 0.3s;
-        }
-        #comment-form input:focus, #comment-form textarea:focus {
-            border-color: #667eea;
-            outline: none;
+            font-size: 1em;
         }
         #comment-form button { 
             background: linear-gradient(45deg, #28a745, #20c997); 
@@ -211,10 +190,7 @@
             border-radius: 8px; 
             cursor: pointer; 
             font-weight: bold;
-            transition: transform 0.3s;
         }
-        #comment-form button:hover { transform: scale(1.05); }
-        #comment-form button:disabled { opacity: 0.6; cursor: not-allowed; }
         .comment { 
             background: #f8f9fa; 
             padding: 15px; 
@@ -222,27 +198,26 @@
             border-radius: 8px; 
             border-right: 5px solid #667eea; 
             position: relative;
+            font-size: 0.95em;
         }
         .comment::before {
             content: '\f075'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #667eea; position: absolute; right: 10px; top: 10px;
         }
-        body[dir="ltr"] .comment::before, body[dir="fr"] .comment::before { right: auto; left: 10px; }
 
         footer { 
             background: rgba(0, 0, 0, 0.9); 
             color: #fff; 
             text-align: center; 
             padding: 25px; 
+            font-size: 0.9em;
         }
         .social-links a { 
             color: #fff; 
             margin: 0 15px; 
             font-size: 1.5em;
-            transition: color 0.3s, transform 0.3s;
         }
-        .social-links a:hover { color: #667eea; transform: scale(1.2); }
 
-        /* Dark Mode */
+        /* === Dark Mode === */
         .dark-mode .description,
         .dark-mode .chapter,
         .dark-mode #comments,
@@ -252,7 +227,7 @@
         }
         .dark-mode .read-btn { background: linear-gradient(45deg, #5a67d8, #4c51bf); }
 
-        /* Modal الفصل */
+        /* === Modal الفصل === */
         #chapter-modal {
             display: none;
             position: fixed;
@@ -261,50 +236,82 @@
             width: 100%; height: 100%;
             background: rgba(0,0,0,0.9);
             overflow-y: auto;
+            padding: 20px;
         }
         #chapter-content {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            padding: 20px;
+            gap: 10px;
         }
         #chapter-content img {
-            max-width: 200px;
-            margin: 10px;
+            max-width: 100%;
+            height: auto;
             border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.3s;
+            cursor: zoom-in;
         }
-        #chapter-content img:hover { transform: scale(1.1); }
         .close {
             color: white;
-            float: left;
+            position: absolute;
+            top: 15px;
+            left: 15px;
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
-            padding: 10px;
+            z-index: 1003;
+        }
+
+        /* === تحسينات للهاتف النقال === */
+        @media (max-width: 768px) {
+            .sidebar {
+                flex-direction: row;
+                top: auto;
+                bottom: 15px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255,255,255,0.9);
+                padding: 10px;
+                border-radius: 50px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+                gap: 20px;
+            }
+            .dark-mode .sidebar { background: rgba(30,30,30,0.9); }
+            .sidebar-btn { width: 45px; height: 45px; font-size: 1.2em; }
+
+            h1 { font-size: 2.2em; }
+            .cover { max-width: 300px; }
+            .description, #comments { margin: 20px 15px; padding: 20px; }
+            .chapters { flex-direction: column; align-items: center; }
+            .chapter { width: 90%; max-width: 300px; }
+            #google_translate_element { top: 10px; right: 10px; }
+            .goog-te-gadget select { padding: 6px 10px; font-size: 13px; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.9em; }
+            .cover { max-width: 250px; }
+            .chapter img { max-width: 120px; }
+            .read-btn { padding: 10px 18px; font-size: 0.85em; }
         }
     </style>
 </head>
 <body>
 
-    <!-- الأزرار الجانبية -->
+    <!-- الشريط الجانبي: Dark Mode + Notification + لوحة التحكم -->
     <div class="sidebar">
-        <button class="sidebar-btn" id="dark-mode-btn" title="Dark Mode">
+        <button class="sidebar-btn" id="dark-mode-btn" title="الوضع الليلي">
             <i class="fas fa-moon"></i>
         </button>
-        <button class="sidebar-btn" id="notification-btn" title="Notifications">
+        <button class="sidebar-btn" id="notification-btn" title="الإشعارات">
             <i class="fas fa-bell"></i>
+        </button>
+        <button class="sidebar-btn" id="admin-panel-btn" title="لوحة تحكم الكاتب" onclick="openAdminPrompt()">
+            <i class="fas fa-cog"></i>
         </button>
     </div>
 
     <!-- Google Translate -->
     <div id="google_translate_element"></div>
-
-    <!-- دائرة لوحة الإدارة - برتقالية فقط -->
-    <div id="admin-circle" onclick="openAdminPrompt()">
-        <i class="fas fa-cog"></i>
-    </div>
 
     <!-- المحتوى -->
     <header>
@@ -323,7 +330,7 @@
 
     <section class="chapters" id="chapters-section"></section>
 
-    <!-- ركن التعليقات - كما كان في البداية -->
+    <!-- ركن التعليقات -->
     <section id="comments">
         <h2><i class="fas fa-comments"></i> اترك تعليقك</h2>
         <form id="comment-form">
@@ -350,7 +357,6 @@
 
     <!-- Firebase Config (استبدل بالقيم الحقيقية) -->
     <script>
-        // استبدل هذا بإعدادات مشروعك في Firebase
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -424,7 +430,7 @@
                 const url = await fileRef.getDownloadURL();
 
                 if (ch.fileUrl.match(/\.(pdf|cbz|cbr)$/i)) {
-                    content.innerHTML = `<iframe src="${url}" style="width:90%;height:90vh;border:none;"></iframe>`;
+                    content.innerHTML = `<iframe src="${url}" style="width:100%;height:90vh;border:none;"></iframe>`;
                 } else {
                     const response = await fetch(url);
                     const blob = await response.blob();
@@ -468,6 +474,17 @@
             }
         };
 
+        // لوحة تحكم الكاتب
+        function openAdminPrompt() {
+            const pass = prompt("أدخل كلمة المرور:");
+            if (pass === ADMIN_PASSWORD) {
+                alert("مرحباً بالكاتب! يمكنك الآن إدارة المحتوى.");
+                // يمكنك إضافة لوحة رفع هنا
+            } else if (pass !== null) {
+                alert("كلمة المرور خاطئة!");
+            }
+        }
+
         // Google Translate
         function googleTranslateElementInit() {
             new google.translate.TranslateElement({ pageLanguage: 'ar' }, 'google_translate_element');
@@ -476,24 +493,7 @@
         translateScript.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
         document.body.appendChild(translateScript);
 
-        // لوحة الإدارة (دائرة برتقالية فقط)
-        function openAdminPrompt() {
-            const pass = prompt("أدخل كلمة المرور:");
-            if (pass === ADMIN_PASSWORD) {
-                alert("مرحباً بالكاتب! يمكنك الآن رفع الفصول من لوحة الإدارة.");
-                // يمكنك إضافة نموذج رفع الملفات هنا
-            } else if (pass !== null) {
-                alert("كلمة المرور خاطئة!");
-            }
-        }
-
-        // إظهار الدائرة فقط في وضع الإدارة
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('mode') === 'admin') {
-            document.getElementById('admin-circle').style.display = 'flex';
-        }
-
-        // التعليقات (محلية)
+        // التعليقات
         const form = document.getElementById('comment-form');
         const submitBtn = document.getElementById('submit-btn');
         form.addEventListener('submit', e => {
