@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-ar="مانغا الغراب - موقع رسمي" data-en="Manga The Crow - Official Site" data-fr="Manga Le Corbeau - Site Officiel">مانغا الغراب - موقع رسمي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Roboto:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto Sans+Arabic:wght@400;700&family=Roboto:wght@300;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
@@ -373,6 +373,29 @@
         #chapter-content canvas:hover {
             transform: scale(1.1);
         }
+        /* Viewer Controls */
+        .viewer-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            padding: 10px;
+            border-radius: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1003;
+        }
+        .viewer-controls button {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .viewer-controls button:hover { background: #5a67d8; }
         @media (max-width: 600px) { 
             h1 { font-size: 2.2em; } 
             .chapters { 
@@ -383,6 +406,7 @@
             .chapter { min-width: auto; }
             header { padding: 20px 10px; }
             #admin-content { width: 95%; margin: 10% auto; }
+            .viewer-controls { flex-direction: column; }
         }
     </style>
 </head>
@@ -429,7 +453,8 @@
     <footer>
         <div class="social-links">
             <a href="https://x.com/yourhandle" target="_blank"><i class="fab fa-twitter"></i></a>
-            <a href="https://instagram.com/yourhandle" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61557602322000" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com/the_crow_0000?igsh=eXFkcnVqdXhsZHU=" target="_blank"><i class="fab fa-instagram"></i></a>
             <a href="https://discord.gg/yourserver" target="_blank"><i class="fab fa-discord"></i></a>
         </div>
         <p data-ar="&copy; 2025 عبد الدين بلال. جميع الحقوق محفوظة. | <a href='#comments' style='color: #667eea;'>تواصل معنا (ركن القارئ)</a>" data-en="&copy; 2025 [Your Name]. All rights reserved. | <a href='#comments' style='color: #667eea;'>Contact Us (Reader's Corner)</a>" data-fr="&copy; 2025 [Votre Nom]. Tous droits réservés. | <a href='#comments' style='color: #667eea;'>Contactez-nous (Coin du lecteur)</a>">&copy; 2025 [اسمك]. جميع الحقوق محفوظة. | <a href="#comments" style="color: #667eea;">تواصل معنا (ركن القارئ)</a></p>
@@ -492,6 +517,13 @@
     <div id="chapter-modal">
         <span class="close" onclick="closeChapterModal()" style="color: white; float: left; font-size: 28px; font-weight: bold; cursor: pointer; padding: 10px;">&times;</span>
         <div id="chapter-content"></div>
+        <div class="viewer-controls" id="viewer-controls" style="display: none;">
+            <button onclick="zoomIn()"><i class="fas fa-search-plus"></i></button>
+            <button onclick="zoomOut()"><i class="fas fa-search-minus"></i></button>
+            <button onclick="prevPage()"><i class="fas fa-chevron-left"></i></button>
+            <button onclick="nextPage()"><i class="fas fa-chevron-right"></i></button>
+            <button onclick="downloadFile()"><i class="fas fa-download"></i></button>
+        </div>
     </div>
 
     <script>
@@ -552,7 +584,10 @@
             document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
             document.documentElement.lang = currentLang;
             document.body.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
-            document.querySelector('.lang-toggle').textContent = ['AR', 'EN', 'FR'][langIndex] + ' / ' + ['AR/EN/FR'].replace(currentLang.toUpperCase(), '').replace('/', '');
+            const langs = ['AR', 'EN', 'FR'];
+            const current = langs[langIndex];
+            const others = langs.filter(l => l !== current).join('/');
+            document.querySelector('.lang-toggle').textContent = current + ' / ' + others;
             updateTexts();
             loadData();
         }
@@ -604,85 +639,145 @@
             loadData();
         }
 
+        let currentScale = 1;
+        let currentPage = 0;
+        let totalPages = 0;
+        let currentBlob = null;
+
         async function readChapter(index) {
             incrementViews(index);
             const ch = mangaData.chapters[index];
             const modal = document.getElementById('chapter-modal');
             const content = document.getElementById('chapter-content');
+            const controls = document.getElementById('viewer-controls');
             content.innerHTML = '<p style="color:white; text-align:center;">جاري التحميل...</p>';
+            controls.style.display = 'flex';
             modal.style.display = 'block';
+            currentScale = 1;
+            currentPage = 0;
 
             let blobPromise;
             if (ch.contentKey) {
                 blobPromise = getFile(ch.contentKey);
             } else {
-                // للفصول القديمة أو الخارجي
                 blobPromise = fetch(ch.zip).then(r => r.blob()).catch(() => null);
             }
 
-            blobPromise.then(async blob => {
-                if (!blob) {
-                    content.innerHTML = '<p style="color:white;">فشل تحميل الملف.</p>';
-                    return;
-                }
+            const blob = await blobPromise;
+            currentBlob = blob;
 
-                const ext = (ch.contentType || (ch.zip && ch.zip.split('.').pop()) || 'zip').toLowerCase();
-                const type = (ext === 'cbz' || ext === 'zip') ? 'zip' : ext;
+            if (!blob) {
+                content.innerHTML = '<p style="color:white;">فشل تحميل الملف.</p>';
+                return;
+            }
 
+            const ext = (ch.contentType || (ch.zip && ch.zip.split('.').pop()) || 'zip').toLowerCase();
+            const type = (ext === 'cbz' || ext === 'zip') ? 'zip' : ext;
+
+            try {
                 if (type === 'zip') {
                     const zip = new JSZip();
-                    zip.loadAsync(blob).then(zip => {
-                        const promises = [];
-                        zip.forEach((path, entry) => {
-                            if (!entry.dir && path.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i)) {
-                                promises.push(entry.async('blob').then(b => ({path, blob: b})));
-                            }
-                        });
-                        Promise.all(promises).then(files => {
-                            files.sort((a, b) => a.path.localeCompare(b.path));
-                            content.innerHTML = '';
-                            files.forEach(f => {
-                                const url = URL.createObjectURL(f.blob);
-                                const img = document.createElement('img');
-                                img.src = url;
-                                img.style.maxWidth = '100%';
-                                img.style.display = 'block';
-                                img.style.margin = '20px auto';
-                                img.onclick = function() { 
-                                    this.style.transform = this.style.transform === 'scale(2)' ? 'scale(1)' : 'scale(2)'; 
-                                };
-                                content.appendChild(img);
-                            });
-                        }).catch(() => content.innerHTML = '<p style="color:white;">خطأ في فك الضغط.</p>');
-                    }).catch(() => content.innerHTML = '<p style="color:white;">خطأ في فك الضغط.</p>');
+                    await zip.loadAsync(blob);
+                    const promises = [];
+                    zip.forEach((path, entry) => {
+                        if (!entry.dir && path.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i)) {
+                            promises.push(entry.async('blob').then(b => ({path, blob: b})));
+                        }
+                    });
+                    const files = await Promise.all(promises);
+                    files.sort((a, b) => a.path.localeCompare(b.path));
+                    totalPages = files.length;
+                    content.innerHTML = '';
+                    files.forEach((f, idx) => {
+                        const url = URL.createObjectURL(f.blob);
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.style.display = idx === 0 ? 'block' : 'none';
+                        img.style.maxWidth = '100%';
+                        img.style.margin = '20px auto';
+                        img.onclick = function() { 
+                            this.style.transform = this.style.transform === 'scale(2)' ? 'scale(1)' : 'scale(2)'; 
+                        };
+                        content.appendChild(img);
+                    });
                 } else if (type === 'pdf') {
                     const url = URL.createObjectURL(blob);
-                    pdfjsLib.getDocument(url).promise.then(async pdfDoc => {
-                        content.innerHTML = '';
-                        for (let i = 1; i <= pdfDoc.numPages; i++) {
-                            const page = await pdfDoc.getPage(i);
-                            const scale = 1.5;
-                            const viewport = page.getViewport({scale});
-                            const canvas = document.createElement('canvas');
-                            canvas.height = viewport.height;
-                            canvas.width = viewport.width;
-                            const ctx = canvas.getContext('2d');
-                            await page.render({canvasContext: ctx, viewport}).promise;
-                            canvas.onclick = function() { 
-                                this.style.transform = this.style.transform === 'scale(2)' ? 'scale(1)' : 'scale(2)'; 
-                            };
-                            content.appendChild(canvas);
-                        }
-                    }).catch(() => content.innerHTML = '<p style="color:white;">خطأ في عرض PDF.</p>');
+                    const pdfDoc = await pdfjsLib.getDocument(url).promise;
+                    totalPages = pdfDoc.numPages;
+                    renderPDFPage(pdfDoc, 1);
                 } else {
                     content.innerHTML = '<p style="color:white;">الصيغة غير مدعومة حالياً.</p>';
                 }
-            }).catch(() => content.innerHTML = '<p style="color:white;">فشل تحميل الملف.</p>');
+            } catch (err) {
+                content.innerHTML = '<p style="color:white;">خطأ في عرض المحتوى: ' + err.message + '</p>';
+            }
+        }
+
+        async function renderPDFPage(pdfDoc, pageNum) {
+            const content = document.getElementById('chapter-content');
+            content.innerHTML = '';
+            const page = await pdfDoc.getPage(pageNum);
+            const scale = 1.5 * currentScale;
+            const viewport = page.getViewport({scale});
+            const canvas = document.createElement('canvas');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            const ctx = canvas.getContext('2d');
+            await page.render({canvasContext: ctx, viewport}).promise;
+            canvas.onclick = function() { 
+                this.style.transform = this.style.transform === 'scale(2)' ? 'scale(1)' : 'scale(2)'; 
+            };
+            content.appendChild(canvas);
+        }
+
+        function zoomIn() {
+            currentScale += 0.2;
+            updateViewer();
+        }
+
+        function zoomOut() {
+            currentScale = Math.max(0.5, currentScale - 0.2);
+            updateViewer();
+        }
+
+        function prevPage() {
+            currentPage = Math.max(0, currentPage - 1);
+            updateViewer();
+        }
+
+        function nextPage() {
+            currentPage = Math.min(totalPages - 1, currentPage + 1);
+            updateViewer();
+        }
+
+        function updateViewer() {
+            const ext = mangaData.chapters.find(ch => ch.contentKey || ch.zip).contentType || 'zip';
+            if (ext === 'pdf') {
+                renderPDFPage(pdfjsLib.getDocument(URL.createObjectURL(currentBlob)).promise, currentPage + 1);
+            } else {
+                const imgs = document.querySelectorAll('#chapter-content img');
+                imgs.forEach((img, idx) => {
+                    img.style.display = idx === currentPage ? 'block' : 'none';
+                    if (idx === currentPage) img.style.transform = `scale(${currentScale})`;
+                });
+            }
+        }
+
+        function downloadFile() {
+            if (currentBlob) {
+                const url = URL.createObjectURL(currentBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'chapter.file';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
         }
 
         function closeChapterModal() {
             document.getElementById('chapter-modal').style.display = 'none';
             document.getElementById('chapter-content').innerHTML = '';
+            document.getElementById('viewer-controls').style.display = 'none';
         }
 
         function updateCover() {
