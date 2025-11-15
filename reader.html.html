@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مانغا الغراب - موقع رسمي</title>
+    <title data-ar="مانغا الغراب - موقع رسمي" data-en="Manga The Crow - Official Site" data-fr="Manga Le Corbeau - Site Officiel">مانغا الغراب - موقع رسمي</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Roboto:wght@300;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js';
+    </script>
     <style>
-        :root {
-            --primary-gradient: linear-gradient(45deg, #667eea, #764ba2);
-            --dark-bg: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #1e3a5f);
-        }
-        * { box-sizing: border-box; }
         body { 
             font-family: 'Noto Sans Arabic', sans-serif; 
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab); 
@@ -28,401 +23,876 @@
             line-height: 1.6; 
             overflow-x: hidden;
             direction: rtl;
-            transition: all 0.3s ease;
+            transition: direction 0.3s ease;
         }
-        body.dark-mode {
-            background: var(--dark-bg);
-            color: #ddd;
+        body[dir="ltr"], body[dir="fr"] {
+            font-family: 'Roboto', sans-serif;
+            direction: ltr;
+            text-align: left;
         }
-        @keyframes gradientShift { 
-            0%{background-position:0% 50%} 
-            50%{background-position:100% 50%} 
-            100%{background-position:0% 50%} 
+        body.dark {
+            background: linear-gradient(-45deg, #0f0f17, #16213e, #1a1a2e, #16213e);
+            color: #e0e0e0;
         }
-
-        /* الشريط الجانبي */
-        .sidebar {
-            position: fixed;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+        body.dark .description,
+        body.dark #comments,
+        body.dark .chapter,
+        body.dark #admin-content,
+        body.dark .admin-section,
+        body.dark .comment,
+        body.dark #comment-form input,
+        body.dark #comment-form textarea {
+            background: rgba(20, 20, 40, 0.95);
+            color: #fff;
+            border-color: #444;
+        }
+        body.dark .read-btn { background: linear-gradient(45deg, #834ba0, #a033c0); }
+        body.dark .views-panel { background: rgba(131, 75, 160, 0.3); }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        header { 
+            background: rgba(0, 0, 0, 0.8); 
+            color: #fff; 
+            text-align: center; 
+            padding: 30px 20px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
+            position: relative;
+        }
+        .header-controls {
+            position: absolute;
+            top: 10px;
+            left: 20px;
             display: flex;
             flex-direction: column;
             gap: 15px;
-            z-index: 999;
+            z-index: 100;
         }
-        .sidebar-btn {
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.9);
+        body[dir="ltr"] .header-controls { left: auto; right: 20px; }
+        .control-btn {
+            background: rgba(0,0,0,0.5);
+            color: #fff;
             border: none;
-            font-size: 1.4em;
-            color: #333;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 20px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .sidebar-btn:hover { transform: scale(1.15); }
-        .dark-mode .sidebar-btn { background: rgba(30,30,30,0.9); color: #fff; }
-
-        /* Google Translate */
-        #google_translate_element {
-            position: fixed;
-            top Star: 15px;
-            right: 15px;
-            z-index: 998;
-        }
-        .goog-te-gadget select { 
-            background: rgba(255,255,255,0.9); 
-            border: none; 
-            padding: 8px 12px; 
-            border-radius: 20px; 
+        .control-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.15); }
+        .lang-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
             font-size: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
-        /* باقي التصميم */
-        header, .description, .chapter, #comments, footer { margin: 20px auto; max-width: 900px; padding: 20px; border-radius: 12px; }
-        header { background: rgba(0,0,0,0.8); color: #fff; text-align: center; }
-        .cover { max-width: 100%; border-radius: 12px; }
-        .chapters { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .chapter { background: rgba(255,255,255,0.95); width: 250px; text-align: center; }
-        .read-btn { background: var(--primary-gradient); color: #fff; padding: 10px 20px; border-radius: 25px; text-decoration: none; }
-        .dark-mode .chapter, .dark-mode #comments, .dark-mode .description { background: rgba(30,30,30,0.95) !important; color: #eee; }
-
-        /* لوحة التحكم */
-        #admin-panel {
-            display: none;
-            background: rgba(255,255,255,0.95);
-            padding: 25px;
-            margin: 30px auto;
+        .lang-toggle:hover { background: rgba(255,255,255,0.3); }
+        .cover { 
+            width: 100%; 
+            max-width: 400px; 
+            margin: 10px auto; 
+            display: block; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3); 
+            transition: transform 0.3s ease;
+            loading: lazy;
+        }
+        .cover:hover { transform: scale(1.05); }
+        h1 { 
+            margin: 0; 
+            font-family: 'Roboto', sans-serif; 
+            font-size: 3em; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .description { 
+            max-width: 800px; 
+            margin: 30px auto; 
+            padding: 25px; 
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
+            animation: fadeIn 1s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .progress-bar {
+            width: 100%; height: 4px; background: rgba(0,0,0,0.2); margin: 20px auto; border-radius: 2px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); width: 50%; transition: width 0.5s;
+        }
+        .chapters { 
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
+            gap: 25px;
             max-width: 900px;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            direction: rtl;
+            margin: 30px auto;
+            padding: 10px 0;
+            scrollbar-width: thin;
         }
-        .dark-mode #admin-panel { background: rgba(40,40,40,0.95); color: #eee; }
-        #admin-panel h2 { color: #ff6b35; text-align: center; }
-        .form-group { margin: 15px 0; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-family: inherit; }
-        .form-group button { background: #ff6b35; color: white; padding: 12px 24px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
-        .chapter-item { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 8px; position: relative; }
-        .chapter-item button { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 20px; cursor: pointer; position: absolute; left: 10px; top: 10px; }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .sidebar { flex-direction: row; bottom: 15px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.9); padding: 10px; border-radius: 50px; }
-            .dark-mode .sidebar { background: rgba(30,30,30,0.9); }
-            .sidebar-btn { width: 45px; height: 45px; font-size: 1.2em; }
-            #admin-panel { margin: 20px 15px; padding: 20px; }
+        .chapters::-webkit-scrollbar {
+            height: 8px;
+        }
+        .chapters::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+        }
+        .chapters::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+        .chapter { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 20px; 
+            border-radius: 12px; 
+            text-align: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            transition: all 0.4s ease; 
+            position: relative;
+            overflow: hidden;
+            min-width: 250px;
+            flex-shrink: 0;
+        }
+        .chapter::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(35,165,213,0.1) 0%, transparent 70%); transition: all 0.4s ease;
+        }
+        .chapter:hover { 
+            transform: translateY(-10px) rotate(1deg); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+        }
+        .chapter:hover::before { top: 0; left: 0; }
+        .chapter img { 
+            max-width: 150px;
+            height: auto; 
+            border-radius: 8px; 
+            margin-bottom: 10px;
+            loading: lazy;
+        }
+        .views-panel {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        .read-btn { 
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); 
+            color: #fff; 
+            padding: 12px 24px; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            display: inline-block; 
+            margin-top: 10px; 
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .read-btn:hover { 
+            transform: scale(1.1); 
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        #comments { 
+            max-width: 800px; 
+            margin: 30px auto; 
+            padding: 25px; 
+            background: rgba(255, 255, 255, 0.9); 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
+            animation: fadeIn 1s ease-in 0.5s both;
+        }
+        #comment-form { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            margin-bottom: 25px; 
+        }
+        #comment-form input, #comment-form textarea { 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        #comment-form input:focus, #comment-form textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        #comment-form button { 
+            background: linear-gradient(45deg, #28a745, #20c997); 
+            color: #fff; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+        #comment-form button:hover { transform: scale(1.05); }
+        #comment-form button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .comment { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            border-right: 5px solid #667eea; 
+            position: relative;
+        }
+        .comment::before {
+            content: '\f075'; font-family: 'Font Awesome 6 Free'; font-weight: 900; color: #667eea; position: absolute; right: 10px; top: 10px;
+        }
+        body[dir="ltr"] .comment::before, body[dir="fr"] .comment::before { right: auto; left: 10px; }
+        footer { 
+            background: rgba(0, 0, 0, 0.9); 
+            color: #fff; 
+            text-align: center; 
+            padding: 25px; 
+            position: relative;
+        }
+        .social-links { 
+            margin: 15px 0; 
+            font-size: 1.5em;
+        }
+        .social-links a { 
+            color: #fff; 
+            margin: 0 15px; 
+            text-decoration: none; 
+            transition: color 0.3s, transform 0.3s;
+        }
+        .social-links a:hover { 
+            color: #667eea; 
+            transform: scale(1.2);
+        }
+        .admin-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.3s;
+        }
+        .admin-btn:hover { transform: scale(1.05); }
+        #admin-modal, #password-prompt {
+            transition: opacity 0.3s ease;
+        }
+        #admin-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            animation: fadeIn 0.3s;
+        }
+        #admin-content {
+            background: rgba(255,255,255,0.95);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        #admin-content h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .admin-section { margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 8px; }
+        .admin-section input, .admin-section textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+        .admin-section button { background: #667eea; color: #fff; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .admin-section button:hover { background: #5a67d8; }
+        .admin-section button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .delete-btn { background: #e53e3e; }
+        .delete-btn:hover { background: #c53030; }
+        #password-prompt {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        #password-input { padding: 10px; margin: 10px; width: 200px; }
+        .close { color: #aaa; float: left; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        .export-btn { background: #28a745; }
+        .export-btn:hover { background: #218838; }
+        #chapter-modal {
+            display: none;
+            position: fixed;
+            z-index: 1002;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            overflow-y: auto;
+        }
+        #chapter-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #chapter-content img,
+        #chapter-content canvas {
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        #chapter-content img:hover,
+        #chapter-content canvas:hover {
+            transform: scale(1.1);
+        }
+        @media (max-width: 600px) { 
+            h1 { font-size: 2.2em; } 
+            .chapters { 
+                flex-direction: column;
+                overflow-x: hidden;
+                gap: 15px; 
+            }
+            .chapter { min-width: auto; }
+            header { padding: 20px 10px; }
+            #admin-content { width: 95%; margin: 10% auto; }
         }
     </style>
 </head>
 <body>
-
-    <!-- الأزرار الجانبية -->
-    <div class="sidebar">
-        <button class="sidebar-btn" id="dark-mode-btn" title="الوضع الليلي"><i class="fas fa-moon"></i></button>
-        <button class="sidebar-btn" id="notification-btn" title="الإشعارات"><i class="fas fa-bell"></i></button>
-        <button class="sidebar-btn" id="admin-panel-btn" title="لوحة تحكم الكاتب"><i class="fas fa-cog"></i></button>
-    </div>
-
-    <div id="google_translate_element"></div>
-
-    <!-- المحتوى -->
     <header>
-        <h1><i class="fas fa-book-open"></i> مانغا الغراب</h1>
-        <img id="cover-img" src="images/cover.jpg" alt="غلاف" class="cover">
+        <button class="lang-toggle" onclick="toggleLanguage()">AR / EN / FR</button>
+        <div class="header-controls">
+            <button class="control-btn" id="dark-mode-btn" title="وضع الليل"><i class="fas fa-moon"></i></button>
+            <button class="control-btn" id="notification-btn" title="الإشعارات"><i class="fas fa-bell"></i></button>
+            <button class="control-btn" id="admin-btn" title="لوحة تحكم الكاتب"><i class="fas fa-cog"></i></button>
+        </div>
+        <h1 data-ar="<i class='fas fa-book-open'></i> مانغا الغراب" data-en="<i class='fas fa-book-open'></i> Manga The Crow" data-fr="<i class='fas fa-book-open'></i> Manga Le Corbeau"> <i class="fas fa-book-open"></i> مانغا الغراب</h1>
+        <img id="cover-img" src="images/cover.jpg" alt="غلاف المانغا" class="cover">
     </header>
-
+    
     <section class="description" id="description-section">
-        <h2><i class="fas fa-info-circle"></i> وصف القصة</h2>
-        <p id="story-desc">جاري التحميل...</p>
-        <h3><i class="fas fa-users"></i> الشخصيات الرئيسية</h3>
-        <ul id="characters-list"></ul>
-        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-        <p id="progress-text">جاري التحميل...</p>
+        <h2 data-ar="<i class='fas fa-info-circle'></i> وصف القصة" data-en="<i class='fas fa-info-circle'></i> Story Description" data-fr="<i class='fas fa-info-circle'></i> Description de l'histoire"> <i class="fas fa-info-circle"></i> وصف القصة</h2>
+        <p id="story-desc">هنا وصف مختصر عن مانغاك... (مثال: قصة مغامرات في عالم خيالي مليء بالأسرار والشخصيات الغريبة. اكتشف الفصول الجديدة كل أسبوع!)</p>
+        <h3 data-ar="<i class='fas fa-users'></i> الشخصيات الرئيسية" data-en="<i class='fas fa-users'></i> Main Characters" data-fr="<i class='fas fa-users'></i> Personnages principaux"> <i class="fas fa-users"></i> الشخصيات الرئيسية</h3>
+        <ul id="characters-list">
+            <li><i class="fas fa-user"></i> البطل: [اسم] - مغامر شجاع.</li>
+            <li><i class="fas fa-magic"></i> الصديق: [اسم] - ساحر ذكي.</li>
+        </ul>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p style="text-align: center; font-style: italic;" id="progress-text">أنت في الفصل 2 من 5 – تابع التقدم!</p>
     </section>
-
-    <section class="chapters" id="chapters-section"></section>
-
+    
+    <section class="chapters" id="chapters-section">
+        <!-- الفصول تُضاف ديناميكيًا هنا -->
+    </section>
+    
     <section id="comments">
-        <h2><i class="fas fa-comments"></i> اترك تعليقك</h2>
+        <h2 data-ar="<i class='fas fa-comments'></i> اترك تعليقك" data-en="<i class='fas fa-comments'></i> Leave a Comment" data-fr="<i class='fas fa-comments'></i> Laissez un commentaire"> <i class="fas fa-comments"></i> اترك تعليقك</h2>
         <form id="comment-form">
-            <input type="text" id="name" placeholder="اسمك" required maxlength="50">
-            <textarea id="message" rows="4" placeholder="تعليقك..." required maxlength="500"></textarea>
-            <button type="submit"><i class="fas fa-paper-plane"></i> أرسل</button>
+            <input type="text" id="name" data-ar-placeholder="اسمك" data-en-placeholder="Your Name" data-fr-placeholder="Votre nom" placeholder="اسمك" required maxlength="50">
+            <textarea id="message" data-ar-placeholder="تعليقك... شارك رأيك في القصة!" data-en-placeholder="Your comment... Share your thoughts on the story!" data-fr-placeholder="Votre commentaire... Partagez vos pensées sur l'histoire!" rows="4" required maxlength="500"></textarea>
+            <button type="submit" id="submit-btn" data-ar="<i class='fas fa-paper-plane'></i> أرسل" data-en="<i class='fas fa-paper-plane'></i> Send" data-fr="<i class='fas fa-paper-plane'></i> Envoyer"> <i class="fas fa-paper-plane"></i> أرسل</button>
         </form>
         <div id="comments-list"></div>
     </section>
-
+    
     <footer>
         <div class="social-links">
-            <a href="https://www.facebook.com/profile.php?id=61557602322000" target="_blank"><i class="fab fa-facebook"></i></a>
-            <a href="https://www.instagram.com/the_crow_000" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://x.com/yourhandle" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://instagram.com/yourhandle" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://discord.gg/yourserver" target="_blank"><i class="fab fa-discord"></i></a>
         </div>
-        <p>© 2025 عبد الدين بلال. جميع الحقوق محفوظة.</p>
+        <p data-ar="&copy; 2025 عبد الدين بلال. جميع الحقوق محفوظة. | <a href='#comments' style='color: #667eea;'>تواصل معنا (ركن القارئ)</a>" data-en="&copy; 2025 [Your Name]. All rights reserved. | <a href='#comments' style='color: #667eea;'>Contact Us (Reader's Corner)</a>" data-fr="&copy; 2025 [Votre Nom]. Tous droits réservés. | <a href='#comments' style='color: #667eea;'>Contactez-nous (Coin du lecteur)</a>">&copy; 2025 [اسمك]. جميع الحقوق محفوظة. | <a href="#comments" style="color: #667eea;">تواصل معنا (ركن القارئ)</a></p>
     </footer>
 
-    <!-- لوحة تحكم الكاتب -->
-    <div id="admin-panel">
-        <h2><i class="fas fa-crown"></i> لوحة تحكم الكاتب</h2>
-
-        <div class="form-group">
-            <label>رفع غلاف المانغا</label>
-            <input type="file" id="cover-upload" accept="image/*">
-            <button onclick="uploadCover()">رفع الغلاف</button>
-        </div>
-
-        <div class="form-group">
-            <label>وصف القصة</label>
-            <textarea id="story-desc-input" rows="4"></textarea>
-            <button onclick="updateDescription()">تحديث الوصف</button>
-        </div>
-
-        <hr>
-
-        <h3>إضافة فصل جديد</h3>
-        <div class="form-group">
-            <label>عنوان الفصل</label>
-            <input type="text" id="chapter-title">
-        </div>
-        <div class="form-group">
-            <label>وصف الفصل</label>
-            <textarea id="chapter-desc" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-            <label>صورة المعاينة</label>
-            <input type="file" id="preview-upload" accept="image/*">
-        </div>
-        <div class="form-group">
-            <label>ملف الفصل (ZIP أو PDF)</label>
-            <input type="file" id="file-upload" accept=".zip,.pdf,.cbz,.cbr">
-        </div>
-        <button onclick="addChapter()">إضافة الفصل</button>
-
-        <h3 style="margin-top:30px;">الفصول الحالية</h3>
-        <div id="admin-chapters-list"></div>
+    <!-- نافذة كلمة المرور -->
+    <div id="password-prompt">
+        <span class="close" onclick="closePassword()">&times;</span>
+        <h3 data-ar="أدخل كلمة المرور للوصول إلى لوحة الإدارة" data-en="Enter password to access the admin panel" data-fr="Entrez le mot de passe pour accéder au tableau de bord">أدخل كلمة المرور للوصول إلى لوحة الإدارة</h3>
+        <input type="password" id="password-input" data-ar-placeholder="كلمة المرور" data-en-placeholder="Password" data-fr-placeholder="Mot de passe" placeholder="كلمة المرور">
+        <br>
+        <button onclick="checkPassword()" data-ar="دخول" data-en="Enter" data-fr="Entrer">دخول</button>
     </div>
 
-    <!-- Modal الفصل -->
-    <div id="chapter-modal" style="display:none;position:fixed;z-index:1002;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.9);overflow:auto;padding:20px;">
-        <span class="close" onclick="closeChapterModal()" style="color:white;position:absolute;top:15px;left:15px;font-size:28px;cursor:pointer;">×</span>
-        <div id="chapter-content" style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;"></div>
+    <!-- لوحة الإدارة -->
+    <div id="admin-modal">
+        <div id="admin-content">
+            <span class="close" onclick="closeAdmin()">&times;</span>
+            <h2 data-ar="<i class='fas fa-user-edit'></i> لوحة الإدارة - ركن الكاتب" data-en="<i class='fas fa-user-edit'></i> Admin Panel - Author's Corner" data-fr="<i class='fas fa-user-edit'></i> Tableau de bord - Coin de l'auteur"> <i class="fas fa-user-edit"></i> لوحة الإدارة - ركن الكاتب</h2>
+            
+            <div class="admin-section">
+                <h3 data-ar="تغيير غلاف الموقع" data-en="Change Site Cover" data-fr="Changer la couverture du site">تغيير غلاف الموقع</h3>
+                <input type="file" id="cover-upload" accept="image/*">
+                <button onclick="updateCover()" data-ar="تحديث الغلاف" data-en="Update Cover" data-fr="Mettre à jour la couverture">تحديث الغلاف</button>
+            </div>
+
+            <div class="admin-section">
+                <h3 data-ar="تعديل وصف القصة" data-en="Edit Story Description" data-fr="Modifier la description de l'histoire">تعديل وصف القصة</h3>
+                <textarea id="edit-desc" rows="3" data-ar-placeholder="وصف القصة الجديد..." data-en-placeholder="New story description..." data-fr-placeholder="Nouvelle description de l'histoire..."></textarea>
+                <button onclick="updateDescription()" data-ar="حفظ الوصف" data-en="Save Description" data-fr="Enregistrer la description">حفظ الوصف</button>
+            </div>
+
+            <div class="admin-section">
+                <h3 data-ar="تعديل الشخصيات" data-en="Edit Characters" data-fr="Modifier les personnages">تعديل الشخصيات</h3>
+                <input type="text" id="edit-char-name" data-ar-placeholder="اسم الشخصية" data-en-placeholder="Character Name" data-fr-placeholder="Nom du personnage" maxlength="50">
+                <input type="text" id="edit-char-desc" data-ar-placeholder="وصف الشخصية" data-en-placeholder="Character Description" data-fr-placeholder="Description du personnage" maxlength="100">
+                <button onclick="addCharacter()" data-ar="إضافة شخصية" data-en="Add Character" data-fr="Ajouter un personnage">إضافة شخصية</button>
+                <ul id="admin-characters"></ul>
+            </div>
+
+            <div class="admin-section">
+                <h3 data-ar="إضافة فصل جديد" data-en="Add New Chapter" data-fr="Ajouter un nouveau chapitre">إضافة فصل جديد</h3>
+                <input type="text" id="new-chapter-title" data-ar-placeholder="عنوان الفصل" data-en-placeholder="Chapter Title" data-fr-placeholder="Titre du chapitre" maxlength="100">
+                <textarea id="new-chapter-desc" rows="2" data-ar-placeholder="وصف مختصر" data-en-placeholder="Brief Description" data-fr-placeholder="Description brève" maxlength="200"></textarea>
+                <input type="file" id="new-chapter-preview" accept="image/*" data-ar-placeholder="غلاف الفصل (صورة)" data-en-placeholder="Chapter Preview (Image)" data-fr-placeholder="Aperçu du chapitre (Image)">
+                <input type="file" id="new-chapter-content" accept=".zip,.cbz,.pdf" data-ar-placeholder="ملف الفصل (ZIP/CBZ/PDF)" data-en-placeholder="Chapter File (ZIP/CBZ/PDF)" data-fr-placeholder="Fichier du chapitre (ZIP/CBZ/PDF)">
+                <button onclick="addChapter()" data-ar="إضافة الفصل" data-en="Add Chapter" data-fr="Ajouter le chapitre">إضافة الفصل</button>
+                <ul id="admin-chapters"></ul>
+            </div>
+
+            <div class="admin-section">
+                <button class="export-btn" onclick="exportData()" data-ar="تصدير البيانات (JSON)" data-en="Export Data (JSON)" data-fr="Exporter les données (JSON)">تصدير البيانات (JSON)</button>
+            </div>
+
+            <button onclick="closeAdmin()" style="background: #6c757d;" data-ar="إغلاق" data-en="Close" data-fr="Fermer">إغلاق</button>
+        </div>
     </div>
 
-    <!-- Firebase Config -->
+    <!-- Modal لعرض محتويات الفصل -->
+    <div id="chapter-modal">
+        <span class="close" onclick="closeChapterModal()" style="color: white; float: left; font-size: 28px; font-weight: bold; cursor: pointer; padding: 10px;">&times;</span>
+        <div id="chapter-content"></div>
+    </div>
+
     <script>
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
-
         const ADMIN_PASSWORD = 'Bilal.abdedine';
-        let mangaData = { chapters: [] };
-        let isAdmin = false;
+        let mangaData = JSON.parse(localStorage.getItem('mangaData')) || {
+            cover: 'images/cover.jpg',
+            description: {
+                ar: 'هنا وصف مختصر عن مانغاك... (مثال: قصة مغامرات في عالم خيالي مليء بالأسرار والشخصيات الغريبة. اكتشف الفصول الجديدة كل أسبوع!)',
+                en: "Here's a brief description of your manga... (Example: A story of adventures in a fantasy world full of secrets and strange characters. Discover new chapters every week!)",
+                fr: "Voici une brève description de votre manga... (Exemple : Une histoire d'aventures dans un monde fantastique rempli de secrets et de personnages étranges. Découvrez de nouveaux chapitres chaque semaine !)"
+            },
+            characters: [
+                { name: { ar: 'البطل: [اسم]', en: 'Hero: [Name]', fr: 'Héros : [Nom]' }, desc: { ar: 'مغامر شجاع.', en: 'Brave adventurer.', fr: 'Aventurier courageux.' } },
+                { name: { ar: 'الصديق: [اسم]', en: 'Friend: [Name]', fr: 'Ami : [Nom]' }, desc: { ar: 'ساحر ذكي.', en: 'Clever wizard.', fr: 'Sorcier intelligent.' } }
+            ],
+            chapters: [
+                { title: { ar: 'الفصل 1: البداية', en: 'Chapter 1: The Beginning', fr: 'Chapitre 1 : Le Début' }, desc: { ar: 'اكتشاف العالم الجديد.', en: 'Discovering the new world.', fr: 'Découverte du nouveau monde.' }, preview: 'images/chapter1-preview.jpg', zip: 'chapters/chapter1.zip', views: 0 },
+                { title: { ar: 'الفصل 2: التحدي', en: 'Chapter 2: The Challenge', fr: 'Chapitre 2 : Le Défi' }, desc: { ar: 'مواجهة الأعداء الأوائل.', en: 'Facing the first enemies.', fr: 'Affrontement des premiers ennemis.' }, preview: 'images/chapter2-preview.jpg', zip: 'chapters/chapter2.zip', views: 0 }
+            ]
+        };
+        let currentLang = localStorage.getItem('lang') || 'ar';
+        let langIndex = ['ar', 'en', 'fr'].indexOf(currentLang);
 
-        // تحميل البيانات
-        async function loadData() {
-            try {
-                const doc = await db.collection('manga').doc('data').get();
-                if (doc.exists) {
-                    mangaData = doc.data();
-                } else {
-                    mangaData = { cover: 'images/cover.jpg', description: { ar: '...' }, characters: [], chapters: [] };
-                    await db.collection('manga').doc('data').set(mangaData);
-                }
-                renderContent();
-            } catch (e) { console.error(e); }
+        // IndexedDB للملفات الكبيرة
+        const dbPromise = indexedDB.open('mangaDB', 1);
+        dbPromise.onupgradeneeded = event => {
+            const db = event.target.result;
+            db.createObjectStore('files', { keyPath: 'id' });
+        };
+        let db;
+        dbPromise.onsuccess = event => { db = event.target.result; };
+
+        function storeFile(id, blob) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('files', 'readwrite');
+                const store = tx.objectStore('files');
+                const request = store.put({id, blob});
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
         }
 
-        function renderContent() {
-            document.getElementById('cover-img').src = mangaData.cover;
-            document.getElementById('story-desc').textContent = mangaData.description.ar || 'لا يوجد وصف';
-            document.getElementById('characters-list').innerHTML = (mangaData.characters || []).map(c => `<li><i class="fas fa-user"></i> ${c.name} - ${c.desc}</li>`).join('');
-            document.getElementById('chapters-section').innerHTML = (mangaData.chapters || []).map((ch, i) => `
+        function getFile(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) return resolve(null);
+                const tx = db.transaction('files');
+                const store = tx.objectStore('files');
+                const request = store.get(id);
+                request.onsuccess = () => resolve(request.result ? request.result.blob : null);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function toggleLanguage() {
+            langIndex = (langIndex + 1) % 3;
+            currentLang = ['ar', 'en', 'fr'][langIndex];
+            localStorage.setItem('lang', currentLang);
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.documentElement.lang = currentLang;
+            document.body.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+            document.querySelector('.lang-toggle').textContent = ['AR', 'EN', 'FR'][langIndex] + ' / ' + ['AR/EN/FR'].replace(currentLang.toUpperCase(), '').replace('/', '');
+            updateTexts();
+            loadData();
+        }
+
+        function updateTexts() {
+            document.querySelectorAll('[data-ar]').forEach(el => {
+                el.innerHTML = el.getAttribute(`data-${currentLang}`) || el.getAttribute('data-ar');
+            });
+            document.querySelectorAll('[data-ar-placeholder]').forEach(el => {
+                el.placeholder = el.getAttribute(`data-${currentLang}-placeholder`) || el.getAttribute('data-ar-placeholder');
+            });
+            document.querySelectorAll('.read-btn').forEach(btn => {
+                btn.innerHTML = `<i class="fas fa-eye"></i> ${currentLang === 'ar' ? 'اقرأ الآن' : currentLang === 'en' ? 'Read Now' : 'Lire maintenant'}`;
+            });
+        }
+
+        function loadData() {
+            document.getElementById('cover-img').src = mangaData.cover || 'images/cover.jpg';
+            document.getElementById('story-desc').textContent = mangaData.description[currentLang];
+            document.getElementById('characters-list').innerHTML = mangaData.characters.map(c => `<li><i class="fas fa-user"></i> ${c.name[currentLang]} - ${c.desc[currentLang]}</li>`).join('');
+            document.getElementById('chapters-section').innerHTML = mangaData.chapters.map((ch, index) => `
                 <div class="chapter">
-                    <h3><i class="fas fa-play"></i> ${ch.title}</h3>
-                    <img src="${ch.preview}" loading="lazy">
-                    <p>${ch.desc}</p>
-                    <a href="#" class="read-btn" onclick="readChapter(${i});return false;">اقرأ الآن</a>
-                    <div class="views-panel">المشاهدات: ${ch.views || 0}</div>
+                    <h3><i class="fas fa-play"></i> ${ch.title[currentLang]}</h3>
+                    <img src="${ch.preview}" alt="Preview ${ch.title[currentLang]}" loading="lazy">
+                    <p>${ch.desc[currentLang]}</p>
+                    <a href="#" class="read-btn" onclick="readChapter(${index}); return false;"><i class="fas fa-eye"></i> ${currentLang === 'ar' ? 'اقرأ الآن' : currentLang === 'en' ? 'Read Now' : 'Lire maintenant'}</a>
+                    <div class="views-panel">${currentLang === 'ar' ? 'عدد المشاهدات:' : currentLang === 'en' ? 'Views:' : 'Vues:'} ${ch.views}</div>
                 </div>
             `).join('');
-
             const total = mangaData.chapters.length;
-            const progress = total > 0 ? Math.min((total / 10) * 100, 100) : 0;
+            const progress = total > 0 ? Math.min((total / 10 * 100), 100) : 0;
             document.getElementById('progress-fill').style.width = progress + '%';
-            document.getElementById('progress-text').textContent = `أنت في الفصل ${total} من 10`;
+            document.getElementById('progress-text').textContent = currentLang === 'ar' ? `أنت في الفصل ${total} من 10 – تابع التقدم!` : currentLang === 'en' ? `You are in Chapter ${total} of 10 – Follow the progress!` : `Vous êtes au Chapitre ${total} sur 10 – Suivez la progression !`;
+            displayComments();
 
-            if (isAdmin) renderAdminPanel();
+            // تحديث عداد الإشعارات
+            const comments = JSON.parse(localStorage.getItem('comments')) || [];
+            const count = comments.length;
+            const bell = document.getElementById('notification-btn');
+            bell.innerHTML = `<i class="fas fa-bell"></i>${count > 0 ? '<sup style="background:#e74c3c;color:white;border-radius:50%;padding:2px 6px;font-size:10px;">' + count + '</sup>' : ''}`;
         }
 
-        // قراءة الفصل
-        async function readChapter(i) {
-            const ch = mangaData.chapters[i];
-            ch.views = (ch.views || 0) + 1;
-            await db.collection('manga').doc('data').update({ [`chapters.${i}.views`]: ch.views });
+        function incrementViews(index) {
+            if (mangaData.chapters[index].views === undefined) {
+                mangaData.chapters[index].views = 0;
+            }
+            mangaData.chapters[index].views += 1;
+            localStorage.setItem('mangaData', JSON.stringify(mangaData));
+            loadData();
+        }
 
+        async function readChapter(index) {
+            incrementViews(index);
+            const ch = mangaData.chapters[index];
             const modal = document.getElementById('chapter-modal');
             const content = document.getElementById('chapter-content');
-            content.innerHTML = '<p style="color:white;">جاري التحميل...</p>';
+            content.innerHTML = '<p style="color:white; text-align:center;">جاري التحميل...</p>';
             modal.style.display = 'block';
 
-            try {
-                const url = await storage.refFromURL(ch.fileUrl).getDownloadURL();
-                if (ch.fileUrl.match(/\.(pdf|cbz|cbr)$/i)) {
-                    content.innerHTML = `<iframe src="${url}" style="width:100%;height:90vh;border:none;"></iframe>`;
-                } else {
-                    const blob = await (await fetch(url)).blob();
-                    const zip = new JSZip();
-                    await zip.loadAsync(blob);
-                    content.innerHTML = '';
-                    for (const [path, entry] of Object.entries(zip.files)) {
-                        if (!entry.dir && /\.(jpe?g|png|gif|webp)$/i.test(path)) {
-                            const imgBlob = await entry.async('blob');
-                            const img = document.createElement('img');
-                            img.src = URL.createObjectURL(imgBlob);
-                            img.style.maxWidth = '100%';
-                            content.appendChild(img);
-                        }
-                    }
+            let blobPromise;
+            if (ch.contentKey) {
+                blobPromise = getFile(ch.contentKey);
+            } else {
+                // للفصول القديمة أو الخارجي
+                blobPromise = fetch(ch.zip).then(r => r.blob()).catch(() => null);
+            }
+
+            blobPromise.then(async blob => {
+                if (!blob) {
+                    content.innerHTML = '<p style="color:white;">فشل تحميل الملف.</p>';
+                    return;
                 }
-            } catch (e) {
-                content.innerHTML = `<p style="color:red;">خطأ: ${e.message}</p>`;
+
+                const ext = (ch.contentType || (ch.zip && ch.zip.split('.').pop()) || 'zip').toLowerCase();
+                const type = (ext === 'cbz' || ext === 'zip') ? 'zip' : ext;
+
+                if (type === 'zip') {
+                    const zip = new JSZip();
+                    zip.loadAsync(blob).then(zip => {
+                        const promises = [];
+                        zip.forEach((path, entry) => {
+                            if (!entry.dir && path.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i)) {
+                                promises.push(entry.async('blob').then(b => ({path, blob: b})));
+                            }
+                        });
+                        Promise.all(promises).then(files => {
+                            files.sort((a, b) => a.path.localeCompare(b.path));
+                            content.innerHTML = '';
+                            files.forEach(f => {
+                                const url = URL.createObjectURL(f.blob);
+                                const img = document.createElement('img');
+                                img.src = url;
+                                img.style.maxWidth = '100%';
+                                img.style.display = 'block';
+                                img.style.margin = '20px auto';
+                                img.onclick = function() { 
+                                    this.style.transform = this.style.transform === 'scale(2)' ? 'scale(1)' : 'scale(2)'; 
+                                };
+                                content.appendChild(img);
+                            });
+                        }).catch(() => content.innerHTML = '<p style="color:white;">خطأ في فك الضغط.</p>');
+                    }).catch(() => content.innerHTML = '<p style="color:white;">خطأ في فك الضغط.</p>');
+                } else if (type === 'pdf') {
+                    const url = URL.createObjectURL(blob);
+                    pdfjsLib.getDocument(url).promise.then(async pdfDoc => {
+                        content.innerHTML = '';
+                        for (let i = 1; i <= pdfDoc.numPages; i++) {
+                            const page = await pdfDoc.getPage(i);
+                            const scale = 1.5;
+                            const viewport = page.getViewport({scale});
+                            const canvas = document.createElement('canvas');
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            const ctx = canvas.getContext('2d');
+                            await page.render({canvasContext: ctx, viewport}).promise;
+                            canvas.onclick = function() { 
+                                this.style.transform = this.style.transform === 'scale(2)' ? 'scale(1)' : 'scale(2)'; 
+                            };
+                            content.appendChild(canvas);
+                        }
+                    }).catch(() => content.innerHTML = '<p style="color:white;">خطأ في عرض PDF.</p>');
+                } else {
+                    content.innerHTML = '<p style="color:white;">الصيغة غير مدعومة حالياً.</p>';
+                }
+            }).catch(() => content.innerHTML = '<p style="color:white;">فشل تحميل الملف.</p>');
+        }
+
+        function closeChapterModal() {
+            document.getElementById('chapter-modal').style.display = 'none';
+            document.getElementById('chapter-content').innerHTML = '';
+        }
+
+        function updateCover() {
+            const fileInput = document.getElementById('cover-upload');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    mangaData.cover = e.target.result;
+                    localStorage.setItem('mangaData', JSON.stringify(mangaData));
+                    loadData();
+                    alert(currentLang === 'ar' ? 'تم تحديث الغلاف!' : currentLang === 'en' ? 'Cover updated!' : 'Couverture mise à jour !');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert(currentLang === 'ar' ? 'يرجى اختيار ملف صورة!' : currentLang === 'en' ? 'Please select an image file!' : 'Veuillez sélectionner un fichier image !');
             }
         }
 
-        function closeChapterModal() { document.getElementById('chapter-modal').style.display = 'none'; }
-
-        // لوحة التحكم
-        document.getElementById('admin-panel-btn').onclick = () => {
-            const pass = prompt("كلمة المرور:");
-            if (pass === ADMIN_PASSWORD) {
-                isAdmin = true;
-                document.getElementById('admin-panel').style.display = 'block';
-                document.getElementById('story-desc-input').value = mangaData.description.ar || '';
-                renderAdminPanel();
-            } else if (pass !== null) {
-                alert("كلمة المرور خاطئة!");
+        function openAdmin() {
+            document.getElementById('password-prompt').style.display = 'block';
+        }
+        function closePassword() {
+            document.getElementById('password-prompt').style.display = 'none';
+            document.getElementById('password-input').value = '';
+        }
+        function checkPassword() {
+            const input = document.getElementById('password-input').value.trim();
+            if (input === ADMIN_PASSWORD) {
+                document.getElementById('password-prompt').style.display = 'none';
+                document.getElementById('admin-modal').style.display = 'block';
+                loadAdminData();
+            } else {
+                alert(currentLang === 'ar' ? 'كلمة المرور خاطئة!' : currentLang === 'en' ? 'Invalid password!' : 'Mot de passe invalide !');
             }
-        };
-
-        // رفع الغلاف
-        async function uploadCover() {
-            const file = document.getElementById('cover-upload').files[0];
-            if (!file) return alert("اختر صورة");
-            const ref = storage.ref('covers/cover.jpg');
-            await ref.put(file);
-            const url = await ref.getDownloadURL();
-            await db.collection('manga').doc('data').update({ cover: url });
-            loadData();
         }
-
-        // تحديث الوصف
-        async function updateDescription() {
-            const desc = document.getElementById('story-desc-input').value;
-            await db.collection('manga').doc('data').update({ 'description.ar': desc });
-            loadData();
+        function closeAdmin() {
+            document.getElementById('admin-modal').style.display = 'none';
         }
-
-        // إضافة فصل
-        async function addChapter() {
-            const title = document.getElementById('chapter-title').value;
-            const desc = document.getElementById('chapter-desc').value;
-            const previewFile = document.getElementById('preview-upload').files[0];
-            const file = document.getElementById('file-upload').files[0];
-            if (!title || !desc || !previewFile || !file) return alert("املأ جميع الحقول");
-
-            const previewRef = storage.ref('previews/' + Date.now() + '.jpg');
-            await previewRef.put(previewFile);
-            const previewUrl = await previewRef.getDownloadURL();
-
-            const fileRef = storage.ref('chapters/' + Date.now() + '_' + file.name);
-            await fileRef.put(file);
-            const fileUrl = await fileRef.getDownloadURL();
-
-            const newChapter = { title, desc, preview: previewUrl, fileUrl, views: 0 };
-            mangaData.chapters.push(newChapter);
-            await db.collection('manga').doc('data').set(mangaData);
-            loadData();
-            document.getElementById('chapter-title').value = '';
-            document.getElementById('chapter-desc').value = '';
-            document.getElementById('preview-upload').value = '';
-            document.getElementById('file-upload').value = '';
-        }
-
-        // عرض الفصول في لوحة التحكم
-        function renderAdminPanel() {
-            document.getElementById('admin-chapters-list').innerHTML = mangaData.chapters.map((ch, i) => `
-                <div class="chapter-item">
-                    <strong>${ch.title}</strong><br>${ch.desc}
-                    <button onclick="deleteChapter(${i})">حذف</button>
-                </div>
+        function loadAdminData() {
+            document.getElementById('edit-desc').value = mangaData.description[currentLang];
+            document.getElementById('admin-characters').innerHTML = mangaData.characters.map((c, index) => `
+                <li>${c.name[currentLang]} - ${c.desc[currentLang]} <button class="delete-btn" onclick="deleteCharacter(${index})">${currentLang === 'ar' ? 'حذف' : currentLang === 'en' ? 'Delete' : 'Supprimer'}</button></li>
+            `).join('');
+            document.getElementById('admin-chapters').innerHTML = mangaData.chapters.map((ch, index) => `
+                <li>${ch.title[currentLang]} - ${ch.desc[currentLang]} <br>صورة: ${ch.preview} | محتوى: ${ch.contentKey || ch.zip}
+                <button class="delete-btn" onclick="deleteChapter(${index})">${currentLang === 'ar' ? 'حذف' : currentLang === 'en' ? 'Delete' : 'Supprimer'}</button></li>
             `).join('');
         }
-
-        // حذف فصل
-        async function deleteChapter(i) {
-            if (confirm("هل تريد حذف هذا الفصل؟")) {
-                mangaData.chapters.splice(i, 1);
-                await db.collection('manga').doc('data').set(mangaData);
+        function updateDescription() {
+            const newDesc = document.getElementById('edit-desc').value.trim();
+            if (newDesc) {
+                mangaData.description[currentLang] = newDesc;
+                localStorage.setItem('mangaData', JSON.stringify(mangaData));
                 loadData();
+                alert(currentLang === 'ar' ? 'تم حفظ الوصف!' : currentLang === 'en' ? 'Description saved!' : 'Description enregistrée !');
+            } else {
+                alert(currentLang === 'ar' ? 'الوصف مطلوب!' : currentLang === 'en' ? 'Description required!' : 'Description requise !');
             }
         }
-
-        // Dark Mode + Notifications + Translate + Comments
-        document.getElementById('dark-mode-btn').onclick = () => {
-            document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
-        };
-        if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
-
-        document.getElementById('notification-btn').onclick = () => {
-            Notification.requestPermission().then(p => p === 'granted' && new Notification("مرحباً!", { body: "الإشعارات مفعلة!" }));
-        };
-
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({ pageLanguage: 'ar' }, 'google_translate_element');
+        function addCharacter() {
+            const name = document.getElementById('edit-char-name').value.trim();
+            const desc = document.getElementById('edit-char-desc').value.trim();
+            if (name && desc) {
+                mangaData.characters.push({ name: { [currentLang]: name }, desc: { [currentLang]: desc } });
+                localStorage.setItem('mangaData', JSON.stringify(mangaData));
+                loadData();
+                loadAdminData();
+                document.getElementById('edit-char-name').value = '';
+                document.getElementById('edit-char-desc').value = '';
+                alert(currentLang === 'ar' ? 'تم إضافة الشخصية!' : currentLang === 'en' ? 'Character added!' : 'Personnage ajouté !');
+            } else {
+                alert(currentLang === 'ar' ? 'اسم ووصف الشخصية مطلوبان!' : currentLang === 'en' ? 'Name and description required!' : 'Nom et description requis !');
+            }
         }
-        const s = document.createElement('script');
-        s.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-        document.body.appendChild(s);
+        function deleteCharacter(index) {
+            if (confirm(currentLang === 'ar' ? 'هل أنت متأكد؟' : currentLang === 'en' ? 'Are you sure?' : 'Êtes-vous sûr ?')) {
+                mangaData.characters.splice(index, 1);
+                localStorage.setItem('mangaData', JSON.stringify(mangaData));
+                loadData();
+                loadAdminData();
+            }
+        }
+        function addChapter() {
+            const title = document.getElementById('new-chapter-title').value.trim();
+            const desc = document.getElementById('new-chapter-desc').value.trim();
+            const previewFile = document.getElementById('new-chapter-preview').files[0];
+            const contentFile = document.getElementById('new-chapter-content').files[0];
 
+            if (!title || !desc || !previewFile || !contentFile) {
+                alert(currentLang === 'ar' ? 'املأ جميع الحقول!' : currentLang === 'en' ? 'Fill all fields!' : 'Remplissez tous les champs !');
+                return;
+            }
+
+            const previewReader = new FileReader();
+            previewReader.onload = function(e) {
+                const previewUrl = e.target.result;
+                const key = 'chapter_content_' + Date.now();
+                storeFile(key, contentFile).then(() => {
+                    const ext = contentFile.name.toLowerCase().split('.').pop();
+                    const contentType = (ext === 'cbz' || ext === 'zip') ? 'zip' : ext;
+                    mangaData.chapters.push({
+                        title: { [currentLang]: title },
+                        desc: { [currentLang]: desc },
+                        preview: previewUrl,
+                        contentKey: key,
+                        contentType: contentType,
+                        views: 0
+                    });
+                    localStorage.setItem('mangaData', JSON.stringify(mangaData));
+                    loadData();
+                    loadAdminData();
+                    document.getElementById('new-chapter-title').value = '';
+                    document.getElementById('new-chapter-desc').value = '';
+                    document.getElementById('new-chapter-preview').value = '';
+                    document.getElementById('new-chapter-content').value = '';
+                    alert(currentLang === 'ar' ? 'تم إضافة الفصل!' : currentLang === 'en' ? 'Chapter added!' : 'Chapitre ajouté !');
+                }).catch(err => alert(currentLang === 'ar' ? 'خطأ في التخزين: ' + err : currentLang === 'en' ? 'Storage error: ' + err : 'Erreur de stockage: ' + err));
+            };
+            previewReader.readAsDataURL(previewFile);
+        }
+        function deleteChapter(index) {
+            if (confirm(currentLang === 'ar' ? 'هل أنت متأكد؟' : currentLang === 'en' ? 'Are you sure?' : 'Êtes-vous sûr ?')) {
+                mangaData.chapters.splice(index, 1);
+                localStorage.setItem('mangaData', JSON.stringify(mangaData));
+                loadData();
+                loadAdminData();
+            }
+        }
+        function exportData() {
+            const dataStr = JSON.stringify(mangaData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'manga-data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+            alert(currentLang === 'ar' ? 'تم تصدير البيانات!' : currentLang === 'en' ? 'Data exported!' : 'Données exportées !');
+        }
         const form = document.getElementById('comment-form');
-        form.addEventListener('submit', e => {
+        const submitBtn = document.getElementById('submit-btn');
+        const list = document.getElementById('comments-list');
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('name').value.trim();
             const message = document.getElementById('message').value.trim();
-            if (name && message) {
-                const comments = JSON.parse(localStorage.getItem('comments') || '[]');
-                comments.push({ name, message, date: new Date().toLocaleString() });
+            if (name && message && name.length <= 50 && message.length <= 500) {
+                submitBtn.disabled = true;
+                const comment = { name, message, date: new Date().toLocaleString(currentLang === 'ar' ? 'ar-SA' : currentLang === 'en' ? 'en-US' : 'fr-FR') };
+                let comments = JSON.parse(localStorage.getItem('comments')) || [];
+                comments.push(comment);
                 localStorage.setItem('comments', JSON.stringify(comments));
                 displayComments();
                 form.reset();
+                setTimeout(() => { submitBtn.disabled = false; }, 1000);
+                loadData(); // لتحديث عداد الإشعارات
+                alert(currentLang === 'ar' ? 'تم إرسال التعليق!' : currentLang === 'en' ? 'Comment sent!' : 'Commentaire envoyé !');
+            } else {
+                alert(currentLang === 'ar' ? 'اسم وتعليق صالحان مطلوبان!' : currentLang === 'en' ? 'Valid name and comment required!' : 'Nom et commentaire valides requis !');
             }
         });
-
         function displayComments() {
-            const comments = JSON.parse(localStorage.getItem('comments') || '[]');
-            document.getElementById('comments-list').innerHTML = comments.map(c => 
+            let comments = JSON.parse(localStorage.getItem('comments')) || [];
+            list.innerHTML = comments.map(c => 
                 `<div class="comment"><strong>${c.name}</strong> (${c.date})<br>${c.message}</div>`
             ).join('');
         }
+        window.onclick = function(event) {
+            const modal = document.getElementById('admin-modal');
+            const prompt = document.getElementById('password-prompt');
+            const chapterModal = document.getElementById('chapter-modal');
+            if (event.target === modal) closeAdmin();
+            if (event.target === prompt) closePassword();
+            if (event.target === chapterModal) closeChapterModal();
+        }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeIn 0.8s ease forwards';
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
 
-        window.onload = () => { loadData(); displayComments(); };
+        // إضافة event listeners للأزرار الجديدة
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTexts();
+            loadData();
+            document.querySelectorAll('.chapter').forEach(ch => observer.observe(ch));
+
+            // Dark Mode
+            document.getElementById('dark-mode-btn').addEventListener('click', toggleDarkMode);
+            if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark');
+
+            // Notifications
+            document.getElementById('notification-btn').addEventListener('click', showNotifications);
+
+            // Admin
+            document.getElementById('admin-btn').addEventListener('click', openAdmin);
+        });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+        }
+
+        function showNotifications() {
+            document.querySelector('#comments').scrollIntoView({behavior: 'smooth'});
+        }
     </script>
 </body>
 </html>
